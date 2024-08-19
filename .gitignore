@@ -1,0 +1,10 @@
+py312
+runtime
+.idea
+.ipynb_checkpoints
+official
+
+__pycache__/
+target
+
+*.csv

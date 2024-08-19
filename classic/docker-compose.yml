@@ -1,0 +1,54 @@
+version: "3.9"
+
+services:
+    producer:
+        image: 'com.rezamda.python.rabbitmq-cluster.classic/producer'
+        container_name: 'producer'
+        build: ./client
+        hostname: 'producer'
+        networks:
+            - rabbitmq_cluster_classic
+
+    rabbitmq-1:
+        image: 'rabbitmq:3.13.6-management'
+        container_name: 'rabbitmq-1'
+        hostname: 'rabbitmq-1'
+        environment:
+            - RABBITMQ_ERLANG_COOKIE=1234567890
+        ports:
+            - "5672:5672"
+            - "15672:15672"
+        volumes:
+            - "./config/rabbitmq-1/enabled_plugins:/etc/rabbitmq/enabled_plugins"
+            - "./config/rabbitmq-1/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf"
+            - "./runtime/rabbitmq-1/:/var/lib/rabbitmq/mnesia"
+        networks:
+            - rabbitmq_cluster_classic
+
+    rabbitmq-2:
+        image: 'rabbitmq:3.13.6-alpine'
+        container_name: 'rabbitmq-2'
+        hostname: 'rabbitmq-2'
+        environment:
+            - RABBITMQ_ERLANG_COOKIE=1234567890
+        volumes:
+            - "./config/rabbitmq-2/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf"
+            - "./runtime/rabbitmq-2/:/var/lib/rabbitmq/mnesia"
+        networks:
+            - rabbitmq_cluster_classic
+
+    rabbitmq-3:
+        image: 'rabbitmq:3.13.6-alpine'
+        container_name: 'rabbitmq-3'
+        hostname: 'rabbitmq-3'
+        environment:
+            - RABBITMQ_ERLANG_COOKIE=1234567890
+        volumes:
+            - "./config/rabbitmq-3/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf"
+            - "./runtime/rabbitmq-3/:/var/lib/rabbitmq/mnesia"
+        networks:
+            - rabbitmq_cluster_classic
+
+networks:
+    rabbitmq_cluster_classic:
+        driver: bridge
