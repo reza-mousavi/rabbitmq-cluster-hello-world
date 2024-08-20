@@ -14,7 +14,7 @@ def send(exchange="shard"):
     for val in range(50):
         val_str = str(val)
         queue_name = f"queue-{val}"
-        channel.queue_declare(queue=queue_name, arguments={"x-queue-type": "quorum"})
+        channel.queue_declare(queue=queue_name, durable=True, arguments={"x-queue-type": "quorum"})
         channel.queue_bind(queue_name, exchange, val_str)
 
     send_items(exchange, channel)
