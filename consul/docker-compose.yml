@@ -1,0 +1,77 @@
+services:
+
+    consul-producer:
+        image: 'com.rezamda.python.rabbitmq-cluster.consul/producer'
+        container_name: 'consul-producer'
+        build: ./client
+        hostname: 'consul-producer'
+        depends_on:
+            - consul
+            - rabbitmq-consul-1
+            - rabbitmq-consul-2
+            - rabbitmq-consul-3
+        networks:
+            - rabbitmq_cluster_classic
+
+    consul:
+        image: 'consul:1.15.4'
+        container_name: 'consul'
+        hostname: 'consul'
+        environment:
+            - CONSUL_BIND_INTERFACE=eth0
+        ports:
+            - "8500:8500"
+        networks:
+            - rabbitmq_cluster_classic
+
+    rabbitmq-consul-1:
+        image: 'rabbitmq:3.13.6-management-alpine'
+        container_name: 'rabbitmq-consul-1'
+        hostname: 'rabbitmq-consul-1'
+        environment:
+            - RABBITMQ_ERLANG_COOKIE=1234567890
+        ports:
+            - "5672:5672"
+            - "15672:15672"
+        volumes:
+            - "./config/rabbitmq-consul-1/enabled_plugins:/etc/rabbitmq/enabled_plugins"
+            - "./config/rabbitmq-consul-1/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf"
+            - "./runtime/rabbitmq-consul-1/:/var/lib/rabbitmq/mnesia"
+        depends_on:
+            - consul
+        networks:
+            - rabbitmq_cluster_classic
+
+    rabbitmq-consul-2:
+        image: 'rabbitmq:3.13.6-management-alpine'
+        container_name: 'rabbitmq-consul-2'
+        hostname: 'rabbitmq-consul-2'
+        environment:
+            - RABBITMQ_ERLANG_COOKIE=1234567890
+        volumes:
+            - "./config/rabbitmq-consul-2/enabled_plugins:/etc/rabbitmq/enabled_plugins"
+            - "./config/rabbitmq-consul-2/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf"
+            - "./runtime/rabbitmq-consul-2/:/var/lib/rabbitmq/mnesia"
+        depends_on:
+            - consul
+        networks:
+            - rabbitmq_cluster_classic
+
+    rabbitmq-consul-3:
+        image: 'rabbitmq:3.13.6-management-alpine'
+        container_name: 'rabbitmq-consul-3'
+        hostname: 'rabbitmq-consul-3'
+        environment:
+            - RABBITMQ_ERLANG_COOKIE=1234567890
+        volumes:
+           # - "./config/rabbitmq-consul-3/enabled_plugins:/etc/rabbitmq/enabled_plugins"
+            - "./config/rabbitmq-consul-3/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf"
+            - "./runtime/rabbitmq-consul-3/:/var/lib/rabbitmq/mnesia"
+        depends_on:
+            - consul
+        networks:
+            - rabbitmq_cluster_classic
+
+networks:
+    rabbitmq_cluster_classic:
+        driver: bridge
